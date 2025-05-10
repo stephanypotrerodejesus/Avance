@@ -4,16 +4,16 @@ import mysql.connector
 import smtplib
 from email.message import EmailMessage
 
-# Conexión a la base de datos
+
 conn = mysql.connector.connect(
     host="localhost",
     user="root",
-    password="",  # Pon tu contraseña aquí si tienes
+    password="",  
     database="reservaciones_db"
 )
 cursor = conn.cursor()
 
-# Función para realizar una reservación
+
 def reservar():
     nombre = entry_nombre.get()
     email = entry_email.get()
@@ -24,7 +24,7 @@ def reservar():
         return
 
     try:
-        # Buscar una mesa disponible
+        
         cursor.execute("""
             SELECT id FROM mesas 
             WHERE id NOT IN (SELECT mesa_id FROM reservaciones WHERE fecha_hora = %s)
@@ -40,13 +40,13 @@ def reservar():
             """, (nombre, email, fecha_hora, mesa_id))
             conn.commit()
 
-            # Obtener el número de la mesa
+            
             cursor.execute("SELECT numero FROM mesas WHERE id = %s", (mesa_id,))
             numero_mesa = cursor.fetchone()[0]
 
             messagebox.showinfo("Éxito", f"¡Reservación confirmada en la mesa {numero_mesa} para {fecha_hora}!")
             
-            # Enviar correo de confirmación
+            
             enviar_correo_confirmacion(email, nombre, fecha_hora, numero_mesa)
             
         else:
@@ -54,7 +54,7 @@ def reservar():
     except mysql.connector.Error as err:
         messagebox.showerror("Error", f"Error de base de datos: {err}")
 
-# Función para consultar una reservación
+
 def consultar_reservacion():
     email = entry_consulta_email.get()
 
@@ -82,7 +82,7 @@ def consultar_reservacion():
     except mysql.connector.Error as err:
         messagebox.showerror("Error", f"Error de base de datos: {err}")
 
-# Función para modificar una reservación
+
 def modificar_reservacion():
     email = entry_modificar_email.get()
     nueva_fecha_hora = entry_nueva_fecha_hora.get()
@@ -92,14 +92,14 @@ def modificar_reservacion():
         return
 
     try:
-        # Verificar si existe la reservación
+       
         cursor.execute("SELECT id FROM reservaciones WHERE email = %s", (email,))
         reservacion = cursor.fetchone()
 
         if reservacion:
             reservacion_id = reservacion[0]
 
-            # Buscar una mesa disponible para la nueva fecha
+            
             cursor.execute("""
                 SELECT id FROM mesas 
                 WHERE id NOT IN (SELECT mesa_id FROM reservaciones WHERE fecha_hora = %s)
@@ -110,7 +110,7 @@ def modificar_reservacion():
             if nueva_mesa:
                 nueva_mesa_id = nueva_mesa[0]
 
-                # Actualizar reservación
+               
                 cursor.execute("""
                     UPDATE reservaciones
                     SET fecha_hora = %s, mesa_id = %s
@@ -125,7 +125,7 @@ def modificar_reservacion():
     except mysql.connector.Error as err:
         messagebox.showerror("Error", f"Error de base de datos: {err}")
 
-# Función para eliminar una reservación
+
 def eliminar_reservacion():
     email = entry_eliminar_email.get()
 
@@ -148,9 +148,8 @@ def eliminar_reservacion():
 
 
 def enviar_correo_confirmacion(destinatario, nombre, fecha_hora, numero_mesa):
-    remitente = "pruebaprogramacion005@gmail.com"  # Cambia esto por tu correo
-    contraseña = "wxtkasvekthlnytg"      # Cambia esto por tu contraseña o usa una app password
-
+    remitente = "pruebaprogramacion005@gmail.com"  
+    contraseña = "wxtkasvekthlnytg"      
     msg = EmailMessage()
     msg["Subject"] = "Confirmación de reservación"
     msg["From"] = remitente
@@ -170,11 +169,11 @@ def enviar_correo_confirmacion(destinatario, nombre, fecha_hora, numero_mesa):
         print(f"Error al enviar el correo: {e}")
         
 
-# Interfaz gráfica
+
 root = tk.Tk()
 root.title("Sistema de Reservaciones")
 
-# Sección de Reservar
+
 tk.Label(root, text="Nombre:").grid(row=0, column=0)
 entry_nombre = tk.Entry(root)
 entry_nombre.grid(row=0, column=1)
@@ -190,7 +189,7 @@ entry_fecha_hora.grid(row=2, column=1)
 btn_reservar = tk.Button(root, text="Reservar", command=reservar)
 btn_reservar.grid(row=3, column=0, columnspan=2, pady=10)
 
-# Sección de Consultar
+
 tk.Label(root, text="Consultar reservación por Email:").grid(row=4, column=0)
 entry_consulta_email = tk.Entry(root)
 entry_consulta_email.grid(row=4, column=1)
@@ -198,7 +197,7 @@ entry_consulta_email.grid(row=4, column=1)
 btn_consultar = tk.Button(root, text="Consultar", command=consultar_reservacion)
 btn_consultar.grid(row=5, column=0, columnspan=2, pady=10)
 
-# Sección de Modificar
+
 tk.Label(root, text="Email de reservación a modificar:").grid(row=6, column=0)
 entry_modificar_email = tk.Entry(root)
 entry_modificar_email.grid(row=6, column=1)
@@ -210,7 +209,7 @@ entry_nueva_fecha_hora.grid(row=7, column=1)
 btn_modificar = tk.Button(root, text="Modificar", command=modificar_reservacion)
 btn_modificar.grid(row=8, column=0, columnspan=2, pady=10)
 
-# Sección de Eliminar
+
 tk.Label(root, text="Email de reservación a eliminar:").grid(row=9, column=0)
 entry_eliminar_email = tk.Entry(root)
 entry_eliminar_email.grid(row=9, column=1)

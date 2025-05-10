@@ -1,18 +1,18 @@
-import mysql.connector
+ import mysql.connector
 import smtplib
 from email.message import EmailMessage
 from datetime import datetime, timedelta
 
-# Configura tu conexión a la base de datos
+
 conn = mysql.connector.connect(
     host="localhost",
     user="root",
-    password="",  # tu contraseña de MySQL
+    password="",  
     database="reservaciones_db"
 )
 cursor = conn.cursor()
 
-# Configura tu cuenta de correo
+
 REMITENTE = "pruebaprogramacion005@gmail.com"
 CONTRASENA = "wxtkasvekthlnytg"
 
@@ -45,7 +45,7 @@ def buscar_y_enviar_recordatorios():
     reservaciones = cursor.fetchall()
 
     for nombre, email, fecha_hora, mesa_id in reservaciones:
-        # Obtener el número de la mesa
+      
         cursor.execute("SELECT numero FROM mesas WHERE id = %s", (mesa_id,))
         resultado = cursor.fetchone()
         numero_mesa = resultado[0] if resultado else "?"
